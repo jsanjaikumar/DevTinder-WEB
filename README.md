@@ -18,3 +18,8 @@
 -import the axios 
 -install cors( ) in backend => add middleware to with configuration: origin and credentials : true
 -when ever we make api call so pass axios{withcrienditals : true } 
+-install redux toolkit and read quick start in redux website
+-create utils folder and create file appStore.js
+-configure the appStore and export
+-wraping the app.jsx file by provider store= appStore
+-create slice file nnd create a store and write some code for logigs need wise and export the userSlice.actions & userSlice.reducer
