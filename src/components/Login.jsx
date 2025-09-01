@@ -8,6 +8,7 @@ import {BASE_URL} from "../utils/constants"
 const Login = () => {
   const [emailId, setEmailId]= useState("sanjai@gmail.com")
   const [password, setPassword] = useState("Sanjai@123")
+  const [error, setError] = useState("")
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -18,12 +19,12 @@ const Login = () => {
         emailId,
         password,
       },
-      {withCredentials: true} //for backend cookies fetch in frontend express js cors() package t work
+      {withCredentials: true} //for backend cookies fetch in frontend express js cors() package to work
     );
     dispatch(addUser(res.data));
     return navigate("/")
   }catch(err){
-    console.log(err);
+    setError( err?.response?.data || "Somthing went Wroung")
   }
     
   }
@@ -56,10 +57,11 @@ const Login = () => {
                 <p className="label"></p>
               </label>
             </div>
+            <p className="text-red-500">{error}</p>
             <div className="card-actions flex justify-center">
               <button
                 className="btn btn-primary flex justify-center"
-                onClick={handleLogin} 
+                onClick={handleLogin}
               >
                 Login
               </button>
