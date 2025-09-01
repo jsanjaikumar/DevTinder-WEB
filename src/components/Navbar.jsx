@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios  from 'axios';
 import { removeUser } from '../utils/userSlice';  
 import { BASE_URL } from '../utils/constants';
+import { removeFeed } from '../utils/feedSlice';
 
 
 const Navbar =  () =>  {
@@ -16,6 +17,7 @@ const Navbar =  () =>  {
   try {
     await axios.post(BASE_URL + "/logout",{}, {withCredentials : true});
     dispatch(removeUser())
+    dispatch(removeFeed())
     return navigate("/login")
   } catch (err) {
     //write error page logic like pop up the error page of redirect to login page
