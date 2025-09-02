@@ -24,7 +24,7 @@ const Login = () => {
     dispatch(addUser(res.data));
     return navigate("/")
   }catch(err){
-    setError( err?.response?.data || "Somthing went Wroung")
+    setError( err?.response?.data || "Somthing went Wrong")
   }
     
   }
