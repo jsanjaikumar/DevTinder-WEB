@@ -9,30 +9,39 @@ const Feed = () => {
   const feed = useSelector((store) => store.feed)
   const dispatch = useDispatch()
 
+  console.log(feed)
 
-  const fetchFeed = async ()=>{
-  try{
-     if(feed) return;
-      const res = await axios.get(BASE_URL + "/feed", {withCredentials: true})
-      dispatch(addFeed(res.data))
-    
-     }catch(err){
-      //write some error logic
-      
-     }
-  }
+  const fetchFeed = async () => {
+    if (feed.length > 0) return;
+    try {
+      const res = await axios.get(BASE_URL + "/feed", {
+        withCredentials: true,
+      });
+
+      // If backend returns { users: [...] }
+      dispatch(addFeed(res.data.users));
+
+      // If backend already returns an array
+      // dispatch(addFeed(res.data));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
 
   useEffect(()=>{
     fetchFeed()
   }, [])
 
-  console.log("Feed in store:", feed);
+  if(!feed) return;
+
+  if(feed.length <= 0) return <h1 className='flex justify-center items-center'>Your Running out of Users</h1>
 
   return (
 
   feed && (
-    <div className='flex justify-center items-center my-0'>
-      <UserCards user={feed.users[0]}/>
+    <div className='flex justify-center items-center my-5'>
+      <UserCards user={feed[0]}/>
     </div>
     )
 
