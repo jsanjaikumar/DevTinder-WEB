@@ -23,3 +23,8 @@
 -configure the appStore and export
 -wraping the app.jsx file by provider store= appStore
 -create slice file nnd create a store and write some code for logigs need wise and export the userSlice.actions & userSlice.reducer
+
+
+
+# change the constants of
+baseURL = "api/"
