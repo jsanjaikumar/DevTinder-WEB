@@ -1,25 +1,29 @@
-import axios from 'axios';
-import React from 'react'
-import { BASE_URL } from '../utils/constants';
-import { useDispatch } from 'react-redux';
-import { removeUserFromFeed } from '../utils/feedSlice';
+import axios from "axios";
+import React from "react";
+import { BASE_URL } from "../utils/constants";
+import { useDispatch } from "react-redux";
+import { removeUserFromFeed } from "../utils/feedSlice";
 
 const UserCards = ({ user }) => {
   console.log(user);
-  const { _id , firstName, lastName, age, about, photoUrl, skills, gender } = user;
-  const dispatch= useDispatch()
+  const { _id, firstName, lastName, age, about, photoUrl, skills, gender } =
+    user || {};
 
-  const handleSendRequest = async (status,userId)=>{
-    try{
-      const res = await axios.post(BASE_URL + "/request/send/"+ status + "/" + userId , 
+  const dispatch = useDispatch();
+
+  const handleSendRequest = async (status, userId) => {
+    try {
+      const res = await axios.post(
+        BASE_URL + "/request/send/" + status + "/" + userId,
         {},
-        {withCredentials:true} );
-      dispatch(removeUserFromFeed(userId)); 
-
-    }catch(err){
-      console.error(err)
+        { withCredentials: true }
+      );
+      dispatch(removeUserFromFeed(userId));
+      console.log(res.data);
+    } catch (err) {
+      console.error({ message: err.message });
     }
-  }
+  };
 
   return (
     <>
@@ -58,7 +62,5 @@ const UserCards = ({ user }) => {
     </>
   );
 };
-  
 
-
-export default UserCards
+export default UserCards;

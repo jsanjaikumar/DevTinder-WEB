@@ -35,7 +35,14 @@ const Feed = () => {
 
   if(!feed) return;
 
-  if(feed.length <= 0) return <h1 className='flex justify-center items-center'>Your Running out of Users</h1>
+  if (feed.length <= 0) {
+    return (
+      <h1 className="flex justify-center items-center">
+        Your Running out of Users
+      </h1>
+    );
+  }
+
 
   return (
 
