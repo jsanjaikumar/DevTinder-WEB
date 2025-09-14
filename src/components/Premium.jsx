@@ -13,7 +13,7 @@ const Premium = () => {
         { withCredentials: true }
       );
 
-      const {amount, currency, order_id, razorpayKeyId, notes} = order.data;
+      const { id: order_id,amount, currency, razorpayKeyId, notes } = order.data;
 
       //it should be open the razorpay payment gateway
       const options = {
