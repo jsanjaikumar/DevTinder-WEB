@@ -1,9 +1,8 @@
 import axios from 'axios';
-import React,{useEffect, useState} from 'react'
+import {useEffect, useState} from 'react'
 import { BASE_URL } from '../utils/constants';
 
 const Premium = () => {
-
     const [isUserPremium, setIsUserPremium] = useState(false);
 
      useEffect(() => {
@@ -12,16 +11,15 @@ const Premium = () => {
 
      //verify the user is premium or not
     const verifyPremiumUser = async () => {
-      const res = await axios.get(BASE_URL + "/premium/verify", 
-        { withCredentials: true }
-      );
-       if(res.data.isPremium){
-        setIsUserPremium(true);
-       } 
-      
-    }
+      const res = await axios.get(BASE_URL + "/premium/verify", {
+        withCredentials: true,
+      });
 
-     
+      if (res.data.isPremium) {
+        setIsUserPremium(true);
+      }
+    };
+
 
     const handleBuyClick = async (type) => {
       const order = await axios.post(
