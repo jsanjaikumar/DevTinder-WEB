@@ -1,8 +1,27 @@
 import axios from 'axios';
-import React from 'react'
+import React,{useEffect, useState} from 'react'
 import { BASE_URL } from '../utils/constants';
 
 const Premium = () => {
+
+    const [isUserPremium, setIsUserPremium] = useState(false);
+
+     useEffect(() => {
+       verifyPremiumUser();
+     }, []);
+
+     //verify the user is premium or not
+    const verifyPremiumUser = async () => {
+      const res = await axios.get(BASE_URL + "/premium/verify", 
+        { withCredentials: true }
+      );
+       if(res.data.isPremium){
+        setIsUserPremium(true);
+       } 
+      
+    }
+
+     
 
     const handleBuyClick = async (type) => {
       const order = await axios.post(
@@ -14,6 +33,7 @@ const Premium = () => {
       );
 
       const { orderId ,amount, currency, razorpayKeyId, notes } = order.data;
+      console.log(orderId, amount, currency, razorpayKeyId, notes);
 
       //it should be open the razorpay payment gateway
       const options = {
@@ -31,6 +51,7 @@ const Premium = () => {
         theme: {
           color: "#F37254",
         },
+        handler: verifyPremiumUser,
       };
 
        const rzp = new window.Razorpay(options);
@@ -38,7 +59,9 @@ const Premium = () => {
     };
 
 
-  return (
+  return isUserPremium ? (
+    "You're are already a premium user"
+  ) : (
     <div className="m-10">
       <div className="flex w-full">
         <div className="card bg-base-300 rounded-box grid h-80 flex-grow place-items-center">
@@ -61,7 +84,7 @@ const Premium = () => {
           <h1 className="font-bold text-3xl">Gold Membership</h1>
           <ul>
             <li> - Chat with other people</li>
-            <li> - Infinity connection Requests per day</li>
+            <li> - Inifiniye connection Requests per day</li>
             <li> - Blue Tick</li>
             <li> - 6 months</li>
           </ul>
