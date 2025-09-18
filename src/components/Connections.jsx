@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { BASE_URL } from '../utils/constants'
 import { useDispatch, useSelector } from 'react-redux'
 import { addConnection } from '../utils/connectionSlice'
+import { Link, } from 'react-router-dom'
 
 const Connections = () => {
   const connections = useSelector((store)=> store.connection)
@@ -33,18 +34,28 @@ const Connections = () => {
       <div className=" text-center  my-10">   
         <h1 className="text-bold text-3xl text-white">Connections</h1>
 
-        {connections.map((connection, _id) => {
-           const {firstName, lastName, about, photoUrl, age, gender}= connection
-        return ( 
-          <div key={_id} className=" flex bg-base-200 m-4 p-4 rounded-lg  w-1/2 mx-auto">
+        {connections.map((connection) => {
+           const {_id,firstName, lastName, about, photoUrl, age, gender}= connection
+        return (
+          <div
+            key={_id}
+            className=" flex bg-base-200 m-4 p-4 rounded-lg  w-1/2 mx-auto"
+          >
             <div>
-             < img className="w-20 h-20 rounded-full" src={photoUrl} alt="userProfile" />
+              <img
+                className="w-20 h-20 rounded-full"
+                src={photoUrl}
+                alt="userProfile"
+              />
             </div>
-            <div className='text-left mx-4'>
-              <h2 className='font-bold text-2xl'>{firstName + " " + lastName}</h2>
-              {age && gender &&<p>{age +", "+ gender}</p>}
+            <div className="text-left mx-4">
+              <h2 className="font-bold text-2xl">
+                {firstName + " " + lastName}
+              </h2>
+              {age && gender && <p>{age + ", " + gender}</p>}
               <p>{about}</p>
             </div>
+            <Link to={"/chat/"+ _id}><button className="btn btn-secondary mx-4 ">Chat</button></Link>
           </div>
         );
         }
