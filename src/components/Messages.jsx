@@ -32,20 +32,19 @@ const Connections = () => {
       <div className="min-h-[calc(100vh-64px-80px)] flex items-center justify-center px-4">
         <div className="text-center">
           <div className="mb-6">
-            <i className="bx bx-group text-6xl text-fuchsia-500 mb-4"></i>
+            <i className="bx bx-message-dots text-6xl text-fuchsia-500 mb-4"></i>
           </div>
           <h1 className="text-3xl font-bold text-white mb-4">
             No Connections Found
           </h1>
           <p className="text-gray-400 text-lg mb-6">
-            You haven't connected with any DevDudes yet. Start swiping to find
-            your perfect match!
+            Start connecting with other DevDudes to see your messages here!
           </p>
           <Link
             to="/"
             className="inline-block bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300"
           >
-            Find DevDudes
+            Find Connections
           </Link>
         </div>
       </div>
@@ -55,69 +54,50 @@ const Connections = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0b0410] to-[#1a1a2e]">
       <div className="text-center py-10 px-4">
-        <h1 className="text-bold text-3xl text-white mb-8">Connections</h1>
+        <h1 className="text-3xl font-bold text-white mb-6">
+          Let's say Hello to your DevDudes
+        </h1>
 
-        <div className="max-w-4xl mx-auto space-y-4">
+        <div className="grid gap-6 max-w-4xl mx-auto">
           {connections.map((connection) => {
             const { _id, firstName, lastName, about, photoUrl, age, gender } =
               connection;
             return (
-              <div
-                key={_id}
-                className="bg-gradient-to-br from-[#1a1a2e] to-[#2f2f46] shadow-lg hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] rounded-xl p-6 w-full transition-shadow"
-              >
-                <div className="flex items-center space-x-6">
+              <Link to={`/chat/${_id}`} key={_id}>
+                <div className="flex items-center bg-gradient-to-br from-[#1a1a2e] to-[#2f2f46] hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] transition-shadow rounded-xl p-6 w-full shadow-md">
+                  {/* Avatar */}
                   <img
-                    className="w-24 h-24 rounded-full object-cover border-4 border-fuchsia-700"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-fuchsia-700"
                     src={photoUrl}
-                    alt={`${firstName} ${lastName}`}
+                    alt="userProfile"
+                    onError={(e) => {
+                      e.currentTarget.src = "/fallback-avatar.jpg";
+                    }}
                   />
-                  <div className="flex-1 text-left">
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+
+                  {/* Info */}
+                  <div className="ml-4 text-left flex-1">
+                    <h2 className="text-2xl font-bold text-white">
                       {firstName} {lastName}
                     </h2>
-
                     {(age || gender) && (
-                      <p className="text-sm text-gray-500 dark:text-gray-300 mb-1">
-                        <i className="bx bx-user mr-1"></i>
+                      <p className="text-sm text-white/70">
                         {age ? `${age}` : ""}
                         {age && gender ? ", " : ""}
                         {gender || ""}
                       </p>
                     )}
-
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      {about}
+                    <p className="text-sm text-white/80 mt-1">
+                      {about || "No bio available."}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <Link to={`/chat/${_id}`}>
-                      <button className="px-4 py-2 bg-fuchsia-700 text-white rounded-lg hover:bg-fuchsia-800 transition">
-                        Message
-                      </button>
-                    </Link>
-                    <div className="dropdown dropdown-end">
-                      <div
-                        tabIndex={0}
-                        role="button"
-                        className="cursor-pointer text-xl"
-                      >
-                        <i className="bx bx-dots-horizontal-rounded"></i>
-                      </div>
-                      <div
-                        tabIndex={0}
-                        className="dropdown-content card card-sm bg-base-100 z-10 w-64 shadow-md"
-                      >
-                        <div className="card-body">
-                          <button className="text-red-500 hover:underline">
-                            Remove User
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
+                  {/* Optional Chat Button */}
+                  <button className="btn btn-secondary text-white px-4 py-2 rounded-lg hover:bg-fuchsia-700 transition hidden sm:flex">
+                    <i className="bx bxs-chat mr-2"></i> Say Hello
+                  </button>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

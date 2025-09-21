@@ -10,6 +10,9 @@ import Connections from './components/Connections';
 import Requests from './components/Requests';
 import Premium from './components/Premium';
 import Chat from './components/Chat';
+import ResetPassword from './components/ResetPassword';
+import Messages from './components/Messages';
+import OtpVerify from './components/OtpVerify';
 
 const App = () => {
   return (
@@ -21,10 +24,16 @@ const App = () => {
               <Route path="/" element={<Feed />} />
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/messages" element={<Messages />} />
               <Route path="/connections" element={<Connections />} />
-              <Route path="/requests" element={<Requests/>} />
-              <Route path="/premium" element={<Premium/>} />
+              <Route path="/requests" element={<Requests />} />
+              <Route path="/premium" element={<Premium />} />
               <Route path="/chat/:targetUserId" element={<Chat />} />
+              <Route
+                path="/reset-password/:token"
+                element={<ResetPassword />}
+              />
+              <Route path="/verify-otp" element={<OtpVerify />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -13,8 +13,21 @@ const Chat = () => {
   const user = useSelector((store) => store.user);
   const userId = user?._id;
 
-  // keep socket in ref to avoid duplicate connections
   const socketRef = useRef(null);
+  const chatScrollRef = useRef(null); // container ref
+  const chatEndRef = useRef(null); // bottom anchor
+
+  const scrollToBottom = (behavior = "smooth") => {
+    // scroll only the chat container
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTo({
+        top: chatScrollRef.current.scrollHeight,
+        behavior,
+      });
+    } else {
+      chatEndRef.current?.scrollIntoView({ behavior });
+    }
+  };
 
   const fetchChatMessages = async () => {
     const chat = await axios.get(BASE_URL + "/chat/" + targetUserId, {
@@ -26,21 +39,23 @@ const Chat = () => {
       return {
         firstName: senderId?.firstName,
         lastName: senderId?.lastName,
-        text: text,
+        text,
         createdAt: createdAt || new Date(),
       };
     });
     setMessages(chatMessages);
+    // scroll once after initial load (instant)
+    setTimeout(() => scrollToBottom("auto"), 50);
   };
 
   useEffect(() => {
     fetchChatMessages();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetUserId]);
 
   useEffect(() => {
-    if (!userId) {
-      return;
-    }
+    if (!userId) return;
+
     const socket = createSocketConnection();
     socketRef.current = socket;
 
@@ -50,70 +65,94 @@ const Chat = () => {
       targetUserId,
     });
 
+    // Only scroll when an incoming message arrives from the other user.
     socket.on("messageReceived", ({ firstName, lastName, text }) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { firstName, lastName, text, createdAt: new Date() },
-      ]);
+      setMessages((prevMessages) => {
+        const next = [
+          ...prevMessages,
+          { firstName, lastName, text, createdAt: new Date() },
+        ];
+        // allow state to update then scroll the chat container
+        setTimeout(() => scrollToBottom(), 50);
+        return next;
+      });
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [userId, targetUserId]);
+  }, [userId, targetUserId, user.firstName]);
 
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    if (socketRef.current) {
-      socketRef.current.emit("sendMessage", {
-        text: newMessage,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userId,
-        targetUserId,
-      });
-    }
-    // Remove this line to prevent duplicate (since server will broadcast back)
-    // setMessages((prevMessages) => [...prevMessages, { firstName: user.firstName, lastName: user.lastName, text: newMessage, createdAt: new Date() }]);
+    socketRef.current?.emit("sendMessage", {
+      text: newMessage,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      userId,
+      targetUserId,
+    });
+
+    // Do NOT scroll here. Server will broadcast back via "messageReceived"
+    // and the socket handler will append and scroll the chat container.
     setNewMessage("");
   };
 
   return (
-    <div className="w-3/4 mx-auto border border-r-gray-600 m-5 h-[70vh] flex flex-col">
-      <h1 className="p-5 border-b border-gray-600">Chat</h1>
-      <div className="flex-1 overflow-scroll p-5">
+    <div className="w-full max-w-4xl mx-auto my-8 h-[75vh] flex flex-col bg-gradient-to-br from-[#0b0410] to-[#1a1a2e] rounded-xl shadow-lg border border-white/10">
+      <h1 className="text-white text-xl font-semibold p-5 border-b border-white/10">
+        Lets Chat
+      </h1>
+
+      {/* chat messages container: fixed height + scroll only here */}
+      <div
+        ref={chatScrollRef}
+        className="flex-1 px-6 py-4 space-y-4 overflow-y-auto"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
         {messages.map((msg, index) => {
           const isCurrentUser = msg.firstName === user.firstName;
           return (
             <div
-              className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
               key={index}
+              className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
             >
-              <div className="chat-header">
+              <div className="chat-header text-white/70 text-sm mb-1">
                 {isCurrentUser ? "You" : `${msg.firstName} ${msg.lastName}`}
-                <time className="text-xs opacity-50 ml-2">
+                <time className="ml-2 text-xs text-white/50">
                   {formatDistanceToNow(new Date(msg.createdAt), {
                     addSuffix: true,
                   })}
                 </time>
               </div>
-              <div className="chat-bubble">{msg.text}</div>
-              <div className="chat-footer opacity-50">
-                {isCurrentUser ? "✔️✔️" : "✔️✔️"}
+              <div
+                className={`chat-bubble ${
+                  isCurrentUser
+                    ? "bg-fuchsia-700 text-white"
+                    : "bg-white/10 text-white"
+                }`}
+              >
+                {msg.text}
               </div>
+              <div className="chat-footer text-xs text-white/50 mt-1">✔️✔️</div>
             </div>
           );
         })}
+        <div ref={chatEndRef} />
       </div>
 
-      <div className="p-5 border-t border-gray-600 flex items-center gap-2">
+      <div className="p-5 border-t border-white/10 flex items-center gap-3">
         <input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-1 border border-gray-500 text-white rounded p-2"
+          className="flex-1 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-fuchsia-500"
+          placeholder="Type your message..."
         />
-        <button onClick={sendMessage} className="btn btn-secondary">
+        <button
+          onClick={sendMessage}
+          className="btn bg-fuchsia-700 hover:bg-fuchsia-800 text-white px-4 py-2 rounded-lg transition"
+        >
           Send
         </button>
       </div>
@@ -122,105 +161,3 @@ const Chat = () => {
 };
 
 export default Chat;
-//------------------------------------------------------
-
-// import React, { useEffect, useState } from 'react'
-// import { useSelector } from 'react-redux';
-// import { useParams } from 'react-router-dom';
-// import { createSocketConnection } from '../utils/socket';
-// import axios from 'axios';
-// import { BASE_URL } from '../utils/constants';
-
-// const Chat = () => {
-//     const {targetUserId} = useParams();
-//     const [messages, setMessages] = useState([]); // Example message data
-//     const [newMessage, setNewMessage] = useState("");
-//     const user = useSelector((store)=> store.user)
-//     const userId = user?._id
-
-//     const fetchChatMessages = async () => {
-//       const chat = await axios.get(BASE_URL + "/chat/" + targetUserId, {
-//         withCredentials: true,
-//       });
-
-//        console.log(chat.data.messages);
-
-//        const chatMessages = chat?.data?.messages.map((msg) => {
-//         const {senderId, text} = msg;
-//          return {
-//            firstName: senderId?.firstName,
-//            lastName: senderId?.lastName,
-//            text: text,
-//          };
-//        });
-//        setMessages(chatMessages);
-//     }
-
-//     useEffect(() => {
-//       fetchChatMessages()
-//     }, [])
-
-//     useEffect(() => {
-//       if (!userId) {
-//             return;
-//         }
-//         // Create socket connection when the page loads and make the connection to sockets in backend
-//         const socket = createSocketConnection()
-//         socket.emit("joinChat", {
-//           firstName: user.firstName,
-//           userId,
-//           targetUserId,
-//         }),
-//           socket.on("messageReceived", ({ firstName, lastName, text }) => {
-//             console.log("Message received: ", firstName + " : " + text);
-//             setMessages((prevMessages) => [...prevMessages, { firstName, lastName, text }]);
-//           });
-
-//         return ()=>{
-//             //when the component unmounts disconnect the socket and clean up
-//             socket.disconnect();
-//         }
-//     }, [userId, targetUserId])
-
-//     const sendMessage = ()=>{
-//         const socket = createSocketConnection()
-//         socket.emit("sendMessage", {
-//           text: newMessage,
-//           firstName: user.firstName,
-//           lastName: user.lastName,
-//           userId,
-//           targetUserId,
-//         });
-//         setNewMessage("")
-//     }
-
-//   return (
-//     <div className="w-3/4 mx-auto border border-r-gray-600 m-5 h-[70vh] flex flex-col">
-//       <h1 className="p-5 border-b border-gray-600">Chat</h1>
-//       <div className="flex-1 overflow-scroll p-5">
-//         {/*Show messages in here */}
-//         {messages.map((msg, index) => {
-//             return(
-//                 <div className="chat chat-start" key={index}>
-//                     <div className="chat-header">
-//                       {msg.firstName === user.firstName ? "You" : `${msg.firstName} ${msg.lastName}`}
-//                        {/* {`${msg.firstName}  ${msg.lastName}`} */}
-//                         <time className="text-xs opacity-50">minute ago</time>
-//                     </div>
-//                     <div className="chat-bubble">{msg.text}</div>
-//                     <div className="chat-footer opacity-50">Just Now</div>
-//                 </div>
-//             )
-//         })}
-//       </div>
-
-//       <div className="p-5 border-t border-gray-600 flex items-center gap-2">
-//         <input  value={newMessage} onChange={(e)=> setNewMessage(e.target.value)}
-//         className="flex-1 border border-gray-500 text-white rounded p-2" />
-//         <button onClick={sendMessage} className="btn btn-secondary">Send</button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Chat
