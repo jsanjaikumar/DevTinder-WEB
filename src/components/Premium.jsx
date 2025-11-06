@@ -40,10 +40,7 @@ const Premium = () => {
   const [isUserPremium, setIsUserPremium] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(""); // "silver" | "gold" | ""
 
-  useEffect(() => {
-    verifyPremiumUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   // verify the user is premium or not
   const verifyPremiumUser = async () => {
@@ -60,6 +57,11 @@ const Premium = () => {
       console.error(err?.response ?? err);
     }
   };
+
+  useEffect(() => {
+    verifyPremiumUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUserPremium]);
 
   const handleBuyClick = async (type) => {
     if (loadingPlan) return;
