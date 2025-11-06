@@ -4,6 +4,7 @@ import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { addUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
 
 const EditProfile = ({ user }) => {
   const [firstName, setFirstName] = useState(user?.firstName || "");
@@ -13,8 +14,9 @@ const EditProfile = ({ user }) => {
   const [photoUrl, setPhotoUrl] = useState(user?.photoUrl || "");
   const [skills, setSkills] = useState(user?.skills || "");
   const [gender, setGender] = useState(user?.gender || "");
-  const [toast, setToast] = useState(false);
   const [error, setError] = useState("");
+
+  
 
   const dispatch = useDispatch();
 
@@ -34,13 +36,30 @@ const EditProfile = ({ user }) => {
         },
         { withCredentials: true }
       );
+
       dispatch(addUser(res?.data?.data));
-      setToast(true);
-      setTimeout(() => setToast(false), 3000);
+
+      // ✅ Show toast notification on success
+      toast.success("Profile saved successfully Boss!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     } catch (err) {
-      setError(err.response.data);
+      setError(err.response?.data || "Something went wrong");
+      toast.error("Failed to save profile", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "dark",
+      });
     }
   };
+
+    const notify = () => toast("Wow so easy!");
 
   return (
     <>
@@ -125,10 +144,30 @@ const EditProfile = ({ user }) => {
                         className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/8 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-500 relative z-50"
                         aria-label="Gender"
                       >
-                        <option value="" style={{ background: "#fff", color: "#222" }}>Select Gender</option>
-                        <option value="male" style={{ background: "#fff", color: "#222" }}>Male</option>
-                        <option value="female" style={{ background: "#fff", color: "#222" }}>Female</option>
-                        <option value="others" style={{ background: "#fff", color: "#222" }}>Others</option>
+                        <option
+                          value=""
+                          style={{ background: "#fff", color: "#222" }}
+                        >
+                          Select Gender
+                        </option>
+                        <option
+                          value="male"
+                          style={{ background: "#fff", color: "#222" }}
+                        >
+                          Male
+                        </option>
+                        <option
+                          value="female"
+                          style={{ background: "#fff", color: "#222" }}
+                        >
+                          Female
+                        </option>
+                        <option
+                          value="others"
+                          style={{ background: "#fff", color: "#222" }}
+                        >
+                          Others
+                        </option>
                       </select>
                     </div>
                   </label>
@@ -282,15 +321,8 @@ const EditProfile = ({ user }) => {
           </div>
         </div>
       </div>
-
       {/* Toast (same as before) */}
-      {toast && (
-        <div className="toast toast-top toast-center">
-          <div className="alert alert-success">
-            <span>Profile saved successfully Boss</span>
-          </div>
-        </div>
-      )}
+      <ToastContainer position="top-right" />
     </>
   );
 };
